@@ -14,7 +14,6 @@ public class FibonacciHeap
 		this.first = null;
 		this.size = 0;
 	}
-	
    /**
     * public boolean isEmpty()
     *
