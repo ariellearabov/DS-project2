@@ -59,9 +59,9 @@ public class FibonacciHeap {
 			x.setNext(this.first);
 			x.setPrev(this.first.prev);
 			this.first.setPrev(x);
-			x.prev.setNext(x);
+			x.getPrev().setNext(x);
 			this.first = x; //sets the node as the first node of the heap
-			if ((this.findMin() == null) || (x.getKey() < this.findMin().getKey())) { // updates minimal node if true
+			if (x.getKey() < this.findMin().getKey()) { // updates minimal node if true
 				this.min = x;
 			}
 		}
@@ -93,13 +93,15 @@ public class FibonacciHeap {
 					this.first = this.first.getNext();
 				}
 			}
-			else {
-				this.findMin().getPrev().setNext(x); //connects the children of minimal node we deleted to --
-				this.findMin().getNext().setPrev(x.getPrev()); //-- other roots without changing the order
-				x.getPrev().setNext(this.findMin().getNext());
-				x.setPrev(this.findMin().getPrev());
+			else { //need to change
 				if (this.findMin() == this.first) {
 					this.first = this.first.getChild();
+				}
+				else {
+					this.findMin().getPrev().setNext(x); //connects the children of minimal node we deleted to --
+					this.findMin().getNext().setPrev(x.getPrev()); //-- other roots without changing the order
+					x.getPrev().setNext(this.findMin().getNext());
+					x.setPrev(this.findMin().getPrev());
 				}
 				while (x.getParent() != null) { //sets parent of all the children of min to null (makes them roots)
 					if (x.getMark() == 1) {
@@ -123,7 +125,6 @@ public class FibonacciHeap {
 
 	private HeapNode[] toBuckets(HeapNode x) { //Distributes all trees to their appropriate "bucket", preforms linking as required --> O(log(n))
 		int n =  (int) (2 * (Math.log10(this.size())/Math.log10(2)) + 1);
-		System.out.println(n);
 		HeapNode[] B = new HeapNode[n]; //creates the "buckets"
 		x.getPrev().setNext(null);
 		while (x != null) { //for each tree puts it in the correct bucket
@@ -143,7 +144,6 @@ public class FibonacciHeap {
 	private void fromBuckets(HeapNode[] B) { //collects all the trees from the buckets,
 		//arranges them from the smallest to the largest and updates minimal node --> O(log(n))
 		this.first = null;
-		this.min = null; //added
 		int counter = 0;
 		for (int i = B.length - 1; i >= 0; i--){ //performed in reverse order so the heap is arranged in degrees in ascending order
 			if (B[i] != null) { //if the bucket isn't empty, meaning there is a tree
