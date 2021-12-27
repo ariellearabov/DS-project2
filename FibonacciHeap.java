@@ -20,10 +20,6 @@ public class FibonacciHeap {
 		this.size = 0;
 	}
 
-	public HeapNode getFirst() { //need to remove before submission only relevant for tests
-		return this.first;
-	}
-
    /**
     * public boolean isEmpty()
     *
@@ -148,7 +144,7 @@ public class FibonacciHeap {
 				numOfTrees--;
 				B[currNode.getRank() - 1] = null;
 			}
-			B[currNode.getRank()] = currNode;
+			B[currNode.getRank()] = currNode; //if bucket is empty add the tree
 		}
 		return B;
 	}
@@ -174,7 +170,7 @@ public class FibonacciHeap {
 		numOfTrees = counter; //updates number of trees in heap
 	}
 
-	private HeapNode link(HeapNode node1, HeapNode node2){ //Links two nodes from the same rank
+	private HeapNode link(HeapNode node1, HeapNode node2){ //Links two roots from the same rank
 		// calls linking(HeapNode x, HeapNode y) --> O(1)
 		if (node1.getKey() < node2.getKey()) {
 			return linking(node2 , node1);
@@ -238,9 +234,9 @@ public class FibonacciHeap {
     * Returns the number of elements in the heap.
     *   
     */
-    public int size() { // Returns heap's size --> O(1)
+    public int size() { //Returns the number of nodes in the heap --> O(1)
     	return this.size;
-    } //Returns the number of nodes in the heap --> O(1)
+    }
     	
     private void updateSize(int i) { //Updates the number of nodes in the heap --> O(1)
 		this.size += i;
@@ -253,7 +249,7 @@ public class FibonacciHeap {
     * Note: The size of of the array depends on the maximum order of a tree, and an empty heap returns an empty array.
     * 
     */
-    public int[] countersRep() { //Returns an array with the number of trees of a certain rank in the heap.
+    public int[] countersRep() { //Returns an array with the number of trees of a certain rank in the heap -->
 		if (this.isEmpty()) { //if heap is empty, return an empty array.
 			return new int[0];
 		}
@@ -292,7 +288,6 @@ public class FibonacciHeap {
 		cascadingCut(x); //cutting the node we want to delete from its parent
 		this.min = x; //setting it momentarily as the minimal node (delete min corrects it)
 		deleteMin();
-    	//updateSize(-1);
     }
 
 	private void cascadingCut(HeapNode x){ //preforms a cascading cut process staring at x --> O(log(n)).
@@ -314,7 +309,10 @@ public class FibonacciHeap {
 	}
 
 	private void cut(HeapNode x, HeapNode y){ //cuts node x from its parent y --> O(1).
-		x.setMark(0);
+		if (x.getMark() == 1){
+			x.setMark(0);
+			numOfMarks--;
+		}
 		y.UpdateRank(-1);
 		if (x.getNext() == x) { //x is an only child
 			y.setChild(null);
@@ -326,7 +324,7 @@ public class FibonacciHeap {
 			x.getPrev().setNext(x.getNext());
 			x.getNext().setPrev(x.getPrev());
 		}
-		x.setParent(null); //this was changed maybe needs to be updated again
+		x.setParent(null);
 		insertNode(x); //Inserts the nodes that's been cut into the heap.
 	}
 
@@ -393,21 +391,23 @@ public class FibonacciHeap {
     *  
     * ###CRITICAL### : you are NOT allowed to change H. 
     */
-    public static int[] kMin(FibonacciHeap H, int k)
-    {
-		int [] minKElms = new int[k];
-		FibonacciHeap tempHeap = new FibonacciHeap(); // what is default package?
+    public static int[] kMin(FibonacciHeap H, int k) { //Return's an array with the k minimal nodes in the heap -- > O(k deg(H)) = O(k log(k))
+		int [] minKElms = new int[k]; //creates an array of size k
+		FibonacciHeap tempHeap = new FibonacciHeap();
 		tempHeap.insert(H.first.getKey()); //root of the forest
+		HeapNode currMin = tempHeap.findMin(); //minimal node in temp heap
+		currMin.setOriginal(H.findMin()); //is connected to original node in H.
 		for (int i = 0; i < k; i++){
-			HeapNode currMin = tempHeap.findMin();
 			minKElms[i] = currMin.getKey(); // adds the minimal node in temp heap to the array
-			tempHeap.deleteMin();
-			HeapNode child = currMin.getChild(); //taken from H?
-			tempHeap.insert(child.getKey());
-			child = child.getNext();
-			while (child.getParent().getChild() != child) { //adds all relevant children to temp
-				tempHeap.insert(child.getKey());
+			int originalRank = currMin.getOriginal().getRank();
+			HeapNode childFromH = currMin.getOriginal().getChild();
+			for (int j = 0; j < originalRank; j++){ //adds the children of the minimal node to temp Heap
+				HeapNode newChild = tempHeap.insert(childFromH.getKey());
+				newChild.setOriginal(childFromH); //connects node to its original node in H
+				childFromH = childFromH.getNext();
 			}
+			tempHeap.deleteMin(); //deletes the minimal node in temp Heap
+			currMin = tempHeap.findMin(); //finds the new minimal node in temp Heap
 		}
         return minKElms;
     }
@@ -427,7 +427,8 @@ public class FibonacciHeap {
     	private HeapNode child;
     	private HeapNode next;
     	private HeapNode prev;
-    	private HeapNode parent; 
+    	private HeapNode parent;
+		private HeapNode original;
     	
 
     	public HeapNode(int key) {
@@ -437,7 +438,8 @@ public class FibonacciHeap {
     		this.child = null;
     		this.next = this;
     		this.prev = this;
-    		this.parent = null; 
+    		this.parent = null;
+			this.original = null;
     	}
 
     	public int getKey() { // Returns node's key --> O(1)
@@ -449,19 +451,12 @@ public class FibonacciHeap {
     	}
     	
     	public void UpdateRank(int k) { // Sets node's rank --> O(1)
-    		this.rank += k;
+			this.rank += k;
     	}
     	
     	public int getMark() { // Return node's mark --> O(1)
-    		return this.mark;
+			return this.mark;
     	}
-
-	   public boolean getMarked() { //need to remove before submission only relevant for tests
-			if (getMark() == 0) {
-				return false;
-			}
-			return true;
-	   }
     	
     	public void setMark(int k) { // Sets node's mark, gets only 0 or 1 depending on whether child was cut or not --> O(1)
     		if ((k==0) || (k==1)) {
@@ -474,7 +469,7 @@ public class FibonacciHeap {
     	}
     	
     	public void setChild(HeapNode child) { // Sets node's child --> O(1)
-    		this.child = child;
+			this.child = child;
     	}
     	
     	public HeapNode getNext() { // Returns node's right neighbor --> O(1)
@@ -486,7 +481,7 @@ public class FibonacciHeap {
     	}
     	
     	public HeapNode getPrev() { // Returns node's left neighbor --> O(1)
-    		return this.prev;
+			return this.prev;
     	}
     	
     	public void setPrev(HeapNode prev) { // Sets node's left neighbor --> O(1)
@@ -498,7 +493,15 @@ public class FibonacciHeap {
     	}
     	
     	public void setParent(HeapNode parent) { // Sets node's parent --> O(1)
-    		this.parent = parent;
+			this.parent = parent;
     	}
+
+		public void setOriginal(HeapNode original) { // Sets node's original node --> O(1)
+			this.original = original;
+		}
+
+		public HeapNode getOriginal() { // Returns node's original node --> O(1)
+			return this.original;
+		}
     }
 }
