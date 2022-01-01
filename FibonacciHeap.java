@@ -193,7 +193,7 @@ public class FibonacciHeap {
 			y.getChild().setPrev(x);
 		}
 		y.setChild(x);
-		y.UpdateRank(1);
+		y.updateRank(1);
 		return y;
 	}
 
@@ -314,7 +314,7 @@ public class FibonacciHeap {
 			x.setMark(0);
 			numOfMarks--;
 		}
-		y.UpdateRank(-1);
+		y.updateRank(-1);
 		if (x.getNext() == x) { //x is an only child
 			y.setChild(null);
 		}
@@ -451,7 +451,7 @@ public class FibonacciHeap {
 			return this.rank;
     	}
     	
-    	public void UpdateRank(int k) { // Sets node's rank --> O(1)
+    	public void updateRank(int k) { // Sets node's rank --> O(1)
 			this.rank += k;
     	}
     	
