@@ -392,7 +392,7 @@ public class FibonacciHeap {
     *  
     * ###CRITICAL### : you are NOT allowed to change H. 
     */
-    public static int[] kMin(FibonacciHeap H, int k) { //Return's an array with the k minimal nodes in the heap -- > O(k deg(H)) = O(k log(k))
+    public static int[] kMin(FibonacciHeap H, int k) { //Return's an array with the k minimal nodes in the heap -- > O(k deg(H)).
 		int [] minKElms = new int[k]; //creates an array of size k
 		FibonacciHeap tempHeap = new FibonacciHeap();
 		tempHeap.insert(H.first.getKey()); //root of the forest
