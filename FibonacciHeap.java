@@ -1,6 +1,7 @@
 /**
  * FibonacciHeap
- *
+ * user: arabov, id: 209881531, name: Arielle Arabov
+ * user: yuvalabeles, id: 314618273, name: Yuval Abeles
  * An implementation of a Fibonacci Heap over integers.
  */
 public class FibonacciHeap {
@@ -249,7 +250,7 @@ public class FibonacciHeap {
     * Note: The size of of the array depends on the maximum order of a tree, and an empty heap returns an empty array.
     * 
     */
-    public int[] countersRep() { //Returns an array with the number of trees of a certain rank in the heap -->
+    public int[] countersRep() { //Returns an array with the number of trees of a certain rank in the heap --> O(n)
 		if (this.isEmpty()) { //if heap is empty, return an empty array.
 			return new int[0];
 		}
@@ -505,30 +506,8 @@ public class FibonacciHeap {
 		}
     }
 
-
-
-	public static void main(String[] args) {
-		int [] arg = {6,8,10,12,14};
-		long t1 = System.currentTimeMillis();
-		for(int i : arg){
-			FibonacciHeap heap = new FibonacciHeap();
-			double m = Math.pow(3,i) - 1;
-			for (int k = 0; k <= m; k++) {
-				heap.insert(k);
-			}
-			for (int j = 1; j <= (3*m)/4; j ++) {
-				heap.deleteMin();
-			}
-			long t0 = System.currentTimeMillis();
-			System.out.println("i = " + i);
-			System.out.println(t0 - t1);
-			System.out.println("Total Links =" + FibonacciHeap.totalLinks());
-			System.out.println("Total Cuts =" + FibonacciHeap.totalCuts());
-			System.out.println("Potential = " + heap.potential());
-		}
-	}
-
 }
 
 
-//
+
+
